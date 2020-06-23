@@ -1,12 +1,10 @@
 package io.kaitai.struct.languages.components
 
-import io.kaitai.struct.datatype.{DataType, Endianness, FixedEndian, InheritedEndian, NeedRaw}
+import io.kaitai.struct.datatype.{DataType, Endianness, FixedEndian, NeedRaw}
 import io.kaitai.struct.exprlang.Ast
 import io.kaitai.struct.format._
 import io.kaitai.struct.translators.AbstractTranslator
 import io.kaitai.struct.{ClassTypeProvider, RuntimeConfig}
-
-import scala.collection.mutable.ListBuffer
 
 abstract class LanguageCompiler(
   val typeProvider: ClassTypeProvider,
@@ -118,6 +116,7 @@ abstract class LanguageCompiler(
   def useIO(ioEx: Ast.expr): String
   def pushPos(io: String): Unit
   def seek(io: String, pos: Ast.expr): Unit
+  def scan(io: String, scanStart: Array[Byte]): Unit = {}
   def popPos(io: String): Unit
   def alignToByte(io: String): Unit
 

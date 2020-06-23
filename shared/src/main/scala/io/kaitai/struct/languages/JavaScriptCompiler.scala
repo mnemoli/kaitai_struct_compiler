@@ -253,6 +253,16 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
   override def seek(io: String, pos: Ast.expr): Unit =
     out.puts(s"$io.seek(${expression(pos)});")
 
+  override def scan(io: String, scanStart: Array[Byte]): Unit = {
+    val str = translator.translate(
+      Ast.expr.List(
+        scanStart.map(x => Ast.expr.IntNum(BigInt(x & 0xff)))
+      )
+    )
+    out.puts(s"var _scanPos = $io.scan($str) + ${scanStart.length};")
+    out.puts(s"$io.seek(_scanPos)")
+  }
+
   override def popPos(io: String): Unit =
     out.puts(s"$io.seek(_pos);")
 

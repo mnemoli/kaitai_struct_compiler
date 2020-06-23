@@ -2,6 +2,7 @@ package io.kaitai.struct.format
 
 import io.kaitai.struct.datatype.DataType
 import io.kaitai.struct.exprlang.{Ast, Expressions}
+import io.kaitai.struct.format.AttrSpec.parseContentSpec
 
 sealed abstract class InstanceSpec(val doc: DocSpec) extends YAMLPath {
   def dataTypeComposite: DataType
@@ -25,6 +26,7 @@ case class ParseInstanceSpec(
   cond: ConditionalSpec,
   pos: Option[Ast.expr],
   io: Option[Ast.expr],
+  scanStart: Option[Array[Byte]],
   valid: Option[ValidationSpec]
 ) extends InstanceSpec(_doc) with AttrLikeSpec {
   override def isLazy = true
@@ -71,12 +73,13 @@ object InstanceSpec {
 
         val pos = ParseUtils.getOptValueExpression(srcMap, "pos", path)
         val io = ParseUtils.getOptValueExpression(srcMap, "io", path)
+        val scanStart =  srcMap.get("scan-start").map(parseContentSpec(_, path ++ List("scan-start")))
 
-        val fakeAttrMap = srcMap.filterKeys((key) => key != "pos" && key != "io")
+        val fakeAttrMap = srcMap.filterKeys((key) => key != "pos" && key != "io" && key != "scan-start")
         val a = AttrSpec.fromYaml(fakeAttrMap, path, metaDef, id)
         val valid = srcMap.get("valid").map(ValidationSpec.fromYaml(_, path ++ List("valid")))
 
-        ParseInstanceSpec(id, path, a.doc, a.dataType, a.cond, pos, io, valid)
+        ParseInstanceSpec(id, path, a.doc, a.dataType, a.cond, pos, io, scanStart, valid)
     }
   }
 }

@@ -1,7 +1,7 @@
 package io.kaitai.struct.languages.components
 
+import io.kaitai.struct.datatype.DataType.{BytesType, SwitchType, UserTypeFromBytes}
 import io.kaitai.struct.datatype._
-import io.kaitai.struct.datatype.DataType.{SwitchType, UserTypeFromBytes, BytesType}
 import io.kaitai.struct.exprlang.Ast
 import io.kaitai.struct.format._
 
@@ -16,9 +16,16 @@ trait CommonReads extends LanguageCompiler {
           case None => normalIO
           case Some(ex) => useIO(ex)
         }
-        pis.pos.foreach { pos =>
-          pushPos(io)
-          seek(io, pos)
+        val startScan = pis.scanStart
+        startScan match {
+          case Some(content) =>
+            pushPos(io)
+            scan(io, content)
+          case _ =>
+            pis.pos.foreach { pos =>
+              pushPos(io)
+              seek(io, pos)
+            }
         }
         io
       case _ =>
